@@ -19,9 +19,15 @@ applyTo: "wled00/data/**"
 - `index.js` — functions that manage / update the main interface
 - `settings*.htm` — configuration pages
 - `*.css` — stylesheets (inlined during build)
-- `common.js` — helper functions 
+- `common.js` — helper functions
 
 **Reuse shared helpers from `common.js` whenever possible** instead of duplicating utilities in page-local scripts.
+
+## Accessibility & Interaction
+
+The WLED web UI targets commonly used browser/platform combinations: desktop browsers on Mac and PC (primarily pointer-driven, touch rare),
+and touch-only devices (phones, tablets). If possible, keep the UI accessible to users with disabilities.
+Full keyboard operability is not a strict requirement - adding keyboard shortcuts should be a case-by-case decision.
 
 ## Build Integration
 
