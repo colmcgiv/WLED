@@ -15,7 +15,7 @@ A fast and feature-rich firmware for ESP32 microcontrollers to control addressab
 
 ## ESP32-C6 fork
 
-This fork is aimed at providing ESP32-C6-compatible WLED builds. The `main` branch tracks a WLED 16.0.1-based build with ESP32-C6 support, and the [GitHub Releases page](https://github.com/colmcgiv/WLED/releases) provides a downloadable `WLED_16.0.1_ESP32-C6_4MB.bin` firmware binary for `esp32c6dev_4MB`.
+This fork is aimed at providing ESP32-C6-compatible WLED builds. The `main` branch tracks a WLED build with ESP32-C6 support, and the [GitHub Releases page](https://github.com/colmcgiv/WLED/releases) provides compatible release binaries for ESP32-C6 targets such as `esp32c6dev_4MB`.
 
 This is a custom fork build for ESP32-C6 hardware, not a byte-for-byte copy of the official upstream WLED release.
 
