@@ -20,7 +20,6 @@ permissions:
   contents: write
 
 env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   PIO_ENV: esp32c6dev_4MB
   RELEASE_NAME: ESP32-C6_4MB
 
@@ -31,19 +30,19 @@ jobs:
 
     steps:
       - name: Checkout target
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ inputs.target }}
           fetch-depth: 0
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.12'
           cache: 'pip'
@@ -110,6 +109,7 @@ jobs:
               --repo "$GITHUB_REPOSITORY" \
               --title "$title" \
               --notes-file release-notes.md \
+              --target "${{ steps.assets.outputs.commit }}" \
               --draft=false \
               --prerelease=false \
               --latest
