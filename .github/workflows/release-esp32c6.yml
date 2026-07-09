@@ -105,6 +105,12 @@ jobs:
           title="WLED ${{ inputs.version }} ESP32-C6"
 
           if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh api \
+              --method PATCH \
+              "repos/$GITHUB_REPOSITORY/git/refs/tags/$tag" \
+              -f sha="${{ steps.assets.outputs.commit }}" \
+              -F force=true >/dev/null
+
             gh release edit "$tag" \
               --repo "$GITHUB_REPOSITORY" \
               --title "$title" \
