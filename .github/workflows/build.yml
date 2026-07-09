@@ -8,9 +8,10 @@ on:
         description: 'Build the release env matrix (uses .github/platformio_release.ini.template)'
         type: boolean
         default: false
-
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      environments:
+        description: 'JSON array of PlatformIO environments to build. Empty uses platformio.ini default_envs.'
+        type: string
+        default: ''
 
 jobs:
 
@@ -18,20 +19,27 @@ jobs:
     name: Gather Environments
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Apply release config
       if: inputs.release
       run: cp .github/platformio_release.ini.template platformio_release.ini
-    - uses: actions/setup-python@v5
+    - uses: actions/setup-python@v6
       with:
         python-version: '3.12'
         cache: 'pip'
     - name: Install PlatformIO
       run: pip install -r requirements.txt
-    - name: Get default environments
+    - name: Get environments
       id: envs
+      env:
+        ENVIRONMENTS: ${{ inputs.environments }}
       run: |
-        echo "environments=$(pio project config --json-output | jq -cr '.[0][1][0][1]')" >> $GITHUB_OUTPUT
+        if [ -n "$ENVIRONMENTS" ]; then
+          jq -e 'type == "array"' <<<"$ENVIRONMENTS" >/dev/null
+          echo "environments=$ENVIRONMENTS" >> "$GITHUB_OUTPUT"
+        else
+          echo "environments=$(pio project config --json-output | jq -cr '.[0][1][0][1]')" >> "$GITHUB_OUTPUT"
+        fi
     outputs:
       environments: ${{ steps.envs.outputs.environments }}
 
@@ -45,12 +53,12 @@ jobs:
       matrix:
         environment: ${{ fromJSON(needs.get_default_envs.outputs.environments) }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Apply release config
       if: inputs.release
       run: cp .github/platformio_release.ini.template platformio_release.ini
     - name: Set up Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v5
       with:
         node-version-file: '.nvmrc'
         cache: 'npm'
@@ -59,7 +67,7 @@ jobs:
         VERSION=`date +%y%m%d0`
         sed -i -r -e "s/define VERSION .+/define VERSION $VERSION/" wled00/wled.h
     - name: Cache PlatformIO
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: |
               ~/.platformio/.cache
@@ -68,7 +76,7 @@ jobs:
         key: pio-${{ runner.os }}-${{ matrix.environment }}-${{ hashFiles('platformio.ini', '.github/platformio_release.ini.template', 'pio-scripts/output_bins.py') }}-${{ hashFiles('wled00/**', 'usermods/**') }}
         restore-keys: pio-${{ runner.os }}-${{ matrix.environment }}-${{ hashFiles('platformio.ini', '.github/platformio_release.ini.template', 'pio-scripts/output_bins.py') }}-
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
           python-version: '3.12'
           cache: 'pip'
@@ -89,7 +97,7 @@ jobs:
         else
           echo "name=firmware-${{ matrix.environment }}" >> $GITHUB_OUTPUT
         fi
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: ${{ steps.artifact_name.outputs.name }}
         path: |
@@ -101,9 +109,9 @@ jobs:
     name: Test cdata.js
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
